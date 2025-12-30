@@ -1,16 +1,23 @@
-import { CustomerField } from '@/app/lib/definitions';
-import Link from 'next/link';
+import { CustomerField } from "@/app/lib/definitions";
+import Link from "next/link";
 import {
   CheckIcon,
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
-} from '@heroicons/react/24/outline';
-import { Button } from '@/app/ui/button';
+} from "@heroicons/react/24/outline";
+import { Button } from "@/app/ui/button";
+import { createInvoice, State } from "@/app/lib/actions";
+import { useActionState } from "react";
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
+  const initialState: State = { message: null, errors: {} };
+  // - 接受兩個參數：`(action, initialState)`。
+  // - 返回兩個值：`[state, formAction]` - 表單狀態，以及一個在表單提交時要呼叫的函數。
+  const [state, formAction] = useActionState(createInvoice, initialState);
+
   return (
-    <form>
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -23,6 +30,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue=""
+              aria-describedby="customer-error"
             >
               <option value="" disabled>
                 Select a customer
@@ -35,6 +43,19 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
             </select>
             <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
+        </div>
+        {/* 
+          - `aria-describedby="customer-error"`：這在 `select` 元素和錯誤訊息容器之間建立了一種關係。它表示 `id="customer-error"` 的容器描述了 `select` 元素。當使用者與選擇框互動時，螢幕閱讀器將讀取此描述以通知他們錯誤。
+          - `id="customer-error"`：此 `id` 屬性唯一標識了保存 `select` 輸入錯誤訊息的 HTML 元素。這對於 `aria-describedby` 建立關係是必要的。
+          - `aria-live="polite"`：當 `div` 內的錯誤更新時，螢幕閱讀器應禮貌地通知使用者。當內容更改時（例如，當使用者更正錯誤時），螢幕閱讀器將宣布這些更改，但只在使用者空閒時才宣布，以免打擾他們。
+        */}
+        <div id="customer-error" aria-live="polite" aria-atomic="true">
+          {state.errors.customerId &&
+            state.errors.customerId.map((error: string) => {
+              <p className="mt-2 text-sm text-red-500" key={error}>
+                {error}
+              </p>;
+            })}
         </div>
 
         {/* Invoice Amount */}

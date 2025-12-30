@@ -376,11 +376,6 @@ export async function createInvoice(prevState: State, formData: FormData) {
 - 編輯 `updateInvoice` action 以處理來自 Zod 的驗證錯誤。
 - 在您的元件中顯示錯誤，並添加 `aria` 標籤以改善可及性。
 
-準備好後，展開下面的程式碼片段查看解決方案：
-
-<details>
-<summary>點此展開解決方案</summary>
-
 **編輯發票表單：**
 
 `/app/ui/invoices/edit-form.tsx`
